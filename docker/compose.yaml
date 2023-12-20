@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: 'postgres:latest'
+    container_name: 'usr_api_postgres'
+    environment:
+      - 'POSTGRES_DB=login-api-db'
+      - 'POSTGRES_PASSWORD=secretpass'
+      - 'POSTGRES_USER=api-user'
+    ports:
+      - '5432:5432'
+    volumes:
+      - 'userservice-db:/var/lib/postgresql/data'
+volumes:
+  userservice-db:
