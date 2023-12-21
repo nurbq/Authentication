@@ -13,14 +13,14 @@ import javax.sql.DataSource;
 @Configuration
 public class DatabaseConfig {
 
-    @Value("spring.datasource.url")
-    private String url;
-
-    @Value("spring.datasource.username")
-    private String username;
-
-    @Value("spring.datasource.password")
-    private String password;
+//    @Value("${auth.service.primary-db-url:default }")
+//    private String url;
+//
+//    @Value("${auth.service.primary-db-username}")
+//    private String username;
+//
+//    @Value("${auth.service.primary-db-password}")
+//    private String password;
 
 
     @Bean(name = "dataSource")

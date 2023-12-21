@@ -13,5 +13,5 @@ public class UserEntity {
     private Long id;
     private String email;
     private String password;
-    private LocalDateTime createdDate;
+    private LocalDateTime createdTime;
 }
