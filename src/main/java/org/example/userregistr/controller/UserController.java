@@ -3,10 +3,10 @@ package org.example.userregistr.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.userregistr.exception.IllegalArgumentException;
 import org.example.userregistr.model.dtos.UserCreateDto;
 import org.example.userregistr.model.dtos.UserDto;
 import org.example.userregistr.service.UserService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,7 +17,6 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-
 
     @PostMapping("/register")
     public Long userRegister(@RequestBody @Valid UserCreateDto userCreateDto) {
