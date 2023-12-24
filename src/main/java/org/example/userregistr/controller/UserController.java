@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.userregistr.model.dtos.UserCreateDto;
 import org.example.userregistr.model.dtos.UserDto;
 import org.example.userregistr.service.UserService;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
