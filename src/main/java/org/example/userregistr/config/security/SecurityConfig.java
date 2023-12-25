@@ -12,10 +12,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -25,6 +22,12 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final CustomUserDetailsService customUserDetailsService;
+
+    public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
+        this.customUserDetailsService = customUserDetailsService;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationEventPublisher publisher) throws Exception {
 
@@ -33,8 +36,10 @@ public class SecurityConfig {
             http.getSharedObject(AuthenticationManagerBuilder.class).authenticationEventPublisher(publisher);
         }
 
-        ProviderManager authManager = new ProviderManager(new RobotAuthenticationProvider(List.of("beep-boop", "boop-beep")));
+        var authProvider = new RobotAuthenticationProvider(List.of("beep-boop", "boop-beep"));
+        ProviderManager authManager = new ProviderManager(authProvider);
         authManager.setAuthenticationEventPublisher(publisher);
+        var configurer = new RobotLoginConfigurer();
 
         return http
                 .authorizeHttpRequests(
@@ -53,22 +58,22 @@ public class SecurityConfig {
                 .build();
     }
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return new InMemoryUserDetailsManager(
-                User.builder()
-                        .username("user")
-                        .password(passwordEncoder().encode("asd"))
-                        .authorities("ROLE_user")
-                        .build()
-        );
-    }
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+////        return new InMemoryUserDetailsManager(
+////                User.builder()
+////                        .username("user")
+////                        .password(passwordEncoder().encode("asd"))
+////                        .authorities("ROLE_user")
+////                        .build()
+////        );
+//        return customUserDetailsService;
+//    }
 
     @Bean
     public ApplicationListener<AuthenticationSuccessEvent> successListener() {
-        return event -> {
-            System.out.println(String.format("🌟 SUCCESS [%s] %s", event.getAuthentication().getClass().getSimpleName(), event.getAuthentication().getName()));
-        };
+        return event ->
+                System.out.printf("\uD83C\uDF1F SUCCESS [%s] %s%n", event.getAuthentication().getClass().getSimpleName(), event.getAuthentication().getName());
     }
 
     @Bean
@@ -76,3 +81,4 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
+
