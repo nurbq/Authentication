@@ -1,7 +1,9 @@
 package org.example.userregistr.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.userregistr.dao.entity.Role;
 import org.example.userregistr.dao.entity.UserEntity;
+import org.example.userregistr.dao.repository.RoleRepository;
 import org.example.userregistr.dao.repository.UserRepository;
 import org.example.userregistr.exception.ConflictException;
 import org.example.userregistr.exception.IllegalArgumentException;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
     public Long userRegister(UserCreateDto userCreateDto) {
 
@@ -26,12 +29,16 @@ public class UserService {
             throw new ConflictException("user already exists");
         }
 
-        return userRepository.insert(new UserEntity(
+        Long userId = userRepository.insert(new UserEntity(
                 null,
                 userCreateDto.email(),
                 userCreateDto.password(),
                 LocalDateTime.now()
         ));
+
+        roleRepository.insert(new Role(null, "ROLE_user", userId));
+
+        return userId;
     }
 
     public UserDto getUser(String email) {

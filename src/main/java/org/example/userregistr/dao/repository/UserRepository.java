@@ -48,6 +48,15 @@ public class UserRepository {
         }
     }
 
+    public List<String> getUserRolesByEmail(String email) {
+        String query = "select r.role_name " +
+                "from users as u " +
+                "inner join roles r on u.id = r.user_id " +
+                "where u.email = ?";
+
+        return jdbcTemplate.queryForList(query, String.class, email);
+    }
+
     public List<UserEntity> getAllUsers() {
         String query = "select id, email, password, created_time " +
                 "from users";
