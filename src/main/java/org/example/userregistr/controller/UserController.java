@@ -3,7 +3,6 @@ package org.example.userregistr.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.userregistr.exception.IllegalArgumentException;
 import org.example.userregistr.model.dtos.UserCreateDto;
 import org.example.userregistr.model.dtos.UserDto;
 import org.example.userregistr.service.UserService;
@@ -26,7 +25,7 @@ public class UserController {
 
     @GetMapping("/{email}")
     public UserDto getUser(@PathVariable("email") String email) {
-        return userService.getUser(email);
+        return userService.getUserByEmail(email);
     }
 
     @GetMapping

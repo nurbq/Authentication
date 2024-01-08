@@ -50,7 +50,7 @@ public class UserServiceUnitTest {
 
         when(userRepository.getUserByEmail(anyString())).thenReturn(userEntity);
 
-        UserDto user = userService.getUser(email);
+        UserDto user = userService.getUserByEmail(email);
 
         Assertions.assertThat(user.email()).isEqualTo(email);
     }
@@ -81,6 +81,9 @@ public class UserServiceUnitTest {
     @Test
     void deleteUser_WithValideEmail_ReturnsEmail() throws IllegalArgumentException {
         String email = "test@gmail.com";
+        UserEntity userEntity = new UserEntity(1L, "test@gmail.com", "password", LocalDateTime.now());
+
+        when(userRepository.getUserByEmail(anyString())).thenReturn(userEntity);
         when(userRepository.deleteUserByEmail(eq(email))).thenReturn(email);
 
         email = userService.deleteUserByEmail(email);

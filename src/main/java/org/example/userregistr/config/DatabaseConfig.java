@@ -13,29 +13,32 @@ import javax.sql.DataSource;
 @Configuration
 public class DatabaseConfig {
 
-//    @Value("${auth.service.primary-db-url:default }")
-//    private String url;
-//
-//    @Value("${auth.service.primary-db-username}")
-//    private String username;
-//
-//    @Value("${auth.service.primary-db-password}")
-//    private String password;
+    @Value("${server.driver-class-name}")
+    private String drivername;
+
+    @Value("${server.url}")
+    private String url;
+
+    @Value("${server.username}")
+    private String username;
+
+    @Value("${server.password}")
+    private String password;
 
 
     @Bean(name = "dataSource")
     public DataSource postgresDataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl("jdbc:postgresql://localhost:5432/login-api-db");
-        dataSource.setUsername("api-user");
-        dataSource.setPassword("secretpass");
+        dataSource.setDriverClassName(drivername);
+        dataSource.setUrl(url);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
 
         return dataSource;
     }
 
     @Bean(name = "primaryJdbcTemplate")
-    public JdbcTemplate jdbcTemplate(@Qualifier("dataSource")DataSource dataSource) {
+    public JdbcTemplate jdbcTemplate(@Qualifier("dataSource") DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
 }
