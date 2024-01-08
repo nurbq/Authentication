@@ -6,7 +6,7 @@
 
     <includeAll path="changelog/init/" relativeToChangelogFile="true"/>
 
-    <!--    <includeAll path="liquibase/changelog/dblog/" relativeToChangelogFile="false"/>-->
+    <includeAll path="changelog/dblog/" relativeToChangelogFile="true"/>
 
 
 </databaseChangeLog>

@@ -50,7 +50,7 @@ public class UserServiceUnitTest {
 
         when(userRepository.getUserByEmail(anyString())).thenReturn(userEntity);
 
-        UserDto user = userService.getUser(email);
+        UserDto user = userService.getUserByEmail(email);
 
         Assertions.assertThat(user.email()).isEqualTo(email);
     }

@@ -34,7 +34,7 @@ public class UserService {
         ));
     }
 
-    public UserDto getUser(String email) {
+    public UserDto getUserByEmail(String email) {
         UserEntity userEntity;
         try {
             userEntity = userRepository.getUserByEmail(email);
