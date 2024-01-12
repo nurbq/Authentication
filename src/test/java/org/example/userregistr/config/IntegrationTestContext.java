@@ -17,7 +17,6 @@ public class IntegrationTestContext {
             .withDatabaseName("testDb")
             .withUsername("testUser")
             .withPassword("testPassword");
-//            .withInitScript("ddl.sql");
 
 
     @DynamicPropertySource
@@ -30,6 +29,4 @@ public class IntegrationTestContext {
         registry.add("spring.liquibase.password", postgres::getPassword);
         registry.add("spring.liquibase.contexts", () -> "!prod");
     }
-
-
 }

@@ -1,4 +1,5 @@
 services:
+  name: auth-api-containers
   postgres:
     image: 'postgres:latest'
     container_name: 'usr_api_postgres'
