@@ -6,6 +6,7 @@ import org.example.userregistr.dao.repository.RoleRepository;
 import org.example.userregistr.dao.repository.UserRepository;
 import org.example.userregistr.exception.IllegalArgumentException;
 import org.example.userregistr.exception.NotFoundException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,8 +19,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    //    @Qualifier("passwordEncoder")
-//    private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
@@ -32,7 +31,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             return User.builder()
                     .username(user.getEmail())
                     .password(user.getPassword())
-                    .authorities(authorities.toString()).build();
+                    .authorities(new SimpleGrantedAuthority(authorities.toString())).build();
         } catch (IllegalArgumentException e) {
             throw new NotFoundException("Not found");
         }

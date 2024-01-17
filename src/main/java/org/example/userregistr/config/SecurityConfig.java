@@ -4,10 +4,12 @@ package org.example.userregistr.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -20,22 +22,27 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests((request) -> request
-                        .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/users").hasAuthority("ADMIN")
-                        .anyRequest().authenticated()
-                )
-                .userDetailsService(customUserDetailsService)
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(
+                        request -> request
+                                .requestMatchers("/auth/**").permitAll()
+                                .requestMatchers("/users/all", "/users/admin").hasAuthority("ADMIN")
+                                .anyRequest().permitAll())
                 .httpBasic(Customizer.withDefaults())
-                .formLogin(Customizer.withDefaults());
-
-        return http.build();
+                .formLogin(Customizer.withDefaults())
+                .build();
     }
 
-//    public void configure(AuthenticationManagerBuilder builder) throws Exception {
-//        builder.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder());
-//    }
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setPasswordEncoder(passwordEncoder());
+        provider.setUserDetailsService(customUserDetailsService);
+
+        return provider;
+    }
 
     @Bean("passwordEncoder")
     public BCryptPasswordEncoder passwordEncoder() {

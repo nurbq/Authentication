@@ -24,7 +24,7 @@ public class RoleRepository {
     }
 
     public Long insert(Role role) {
-        String query = "select next_val(roles_id_seq)";
+        String query = "select nextval('roles_id_seq')";
         Long id = jdbcTemplate.queryForObject(query, Long.class);
         query = "insert into roles (id, role_name, user_id) " +
                 "values (?, ?, ?)";
@@ -35,5 +35,13 @@ public class RoleRepository {
                 role.getUserId());
 
         return id;
+    }
+
+    public void deleteByUserId(Long userId) {
+        String query = "delete " +
+                "from roles " +
+                "where user_id = ?";
+
+        jdbcTemplate.update(query, userId);
     }
 }

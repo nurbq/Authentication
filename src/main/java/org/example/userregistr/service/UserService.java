@@ -13,6 +13,7 @@ import org.example.userregistr.model.dtos.UserDto;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,12 +29,12 @@ public class UserService {
     private final RoleRepository roleRepository;
 
 
+    @Transactional
     public Long userRegister(UserCreateDto userCreateDto) {
 
         if (userRepository.checkForExistenceUserByEmail(userCreateDto.email())) {
             throw new ConflictException("user already exists");
         }
-
         Long userId = userRepository.insert(new UserEntity(
                 null,
                 userCreateDto.email(),
