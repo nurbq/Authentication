@@ -1,6 +1,6 @@
+name: auth-api-containers
 services:
-  name: auth-api-containers
-  postgres:
+  auth-api-containers:
     image: 'postgres:latest'
     container_name: 'usr_api_postgres'
     environment:
@@ -10,6 +10,7 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - 'userservice-db:/var/lib/postgresql/data'
+      - 'docker_userservice-db:/var/lib/postgresql/data'
 volumes:
-  userservice-db:
+  docker_userservice-db:
+    external: true
