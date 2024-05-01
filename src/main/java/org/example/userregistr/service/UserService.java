@@ -8,8 +8,11 @@ import org.example.userregistr.dao.repository.UserRepository;
 import org.example.userregistr.exception.ConflictException;
 import org.example.userregistr.exception.IllegalArgumentException;
 import org.example.userregistr.exception.NotFoundException;
+import org.example.userregistr.kafka.KafkaSender;
+import org.example.userregistr.kafka.UserEvent;
 import org.example.userregistr.model.dtos.UserCreateDto;
 import org.example.userregistr.model.dtos.UserDto;
+import org.example.userregistr.model.enums.UserRoles;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,7 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final KafkaSender kafkaSender;
 
 
     @Transactional
@@ -42,8 +46,9 @@ public class UserService {
                 LocalDateTime.now()
         ));
 
-        roleRepository.insert(new Role(null, "USER", userId));
+        roleRepository.insert(new Role(null, UserRoles.USER.name(), userId));
 
+        kafkaSender.sendUserEvent(new UserEvent(userCreateDto.email(), userCreateDto.password()), userCreateDto.email());
         return userId;
     }
 
