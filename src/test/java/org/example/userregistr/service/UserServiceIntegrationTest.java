@@ -4,8 +4,9 @@ package org.example.userregistr.service;
 import org.assertj.core.api.Assertions;
 import org.example.userregistr.config.IntegrationTestContext;
 import org.example.userregistr.dao.entity.UserEntity;
+import org.example.userregistr.dao.repository.RoleRepository;
 import org.example.userregistr.dao.repository.UserRepository;
-import org.example.userregistr.model.dtos.UserCreateDto;
+import org.example.userregistr.model.dtos.request.UserCreateDto;
 import org.example.userregistr.model.dtos.UserDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,18 +27,20 @@ public class UserServiceIntegrationTest extends IntegrationTestContext {
     private UserService userService;
     @Autowired
     private UserRepository userRepository;
-
+    @Autowired
+    private RoleRepository roleRepository;
 
     @DisplayName("Successfully creating a new user")
     @Test
     void userRegister_WithValidCredentials_ReturnsUserDto() {
         UserCreateDto userCreateDto = new UserCreateDto("jh@gmail.com", "pass123");
 
-        Long userDto = userService.userRegister(userCreateDto);
+        Long userId = userService.userRegister(userCreateDto);
 
-        Assertions.assertThat(userDto).isNotNull();
-        Assertions.assertThat(userDto).isEqualTo(1L);
+        Assertions.assertThat(userId).isNotNull();
+        Assertions.assertThat(userId).isEqualTo(1L);
 
+        roleRepository.deleteByUserId(userId);
         userRepository.deleteUserByEmail(userCreateDto.email());
     }
 
@@ -64,7 +67,6 @@ public class UserServiceIntegrationTest extends IntegrationTestContext {
         List<UserDto> userDtos = userService.getAllUsers();
 
         Assertions.assertThat(userDtos.size()).isEqualTo(listSize);
-
     }
 
 
