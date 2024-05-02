@@ -3,9 +3,12 @@ package org.example.userregistr.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.userregistr.model.dtos.UserCreateDto;
 import org.example.userregistr.model.dtos.UserDto;
 import org.example.userregistr.service.UserService;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,25 +17,26 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 
     private final UserService userService;
 
     @GetMapping("/{email}")
     public UserDto getUser(@PathVariable("email") String email) {
-        return new UserDto(1L, "John", LocalDateTime.now());
+        return userService.getUserByEmail(email);
     }
 
-    @GetMapping("/all")
-//    @PreAuthorize("hasAuthority('ADMIN')")
-    public List<UserDto> getAllUsers() {
-        return null;
+    @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public List<UserDto> getAllUsers(Authentication authentication) {
+//        log.info("User: {}{}", authentication.getName(), authentication.getAuthorities());
+        return userService.getAllUsers();
     }
 
     @PostMapping("/register")
