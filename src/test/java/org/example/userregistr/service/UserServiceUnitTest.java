@@ -6,7 +6,7 @@ import org.example.userregistr.dao.entity.UserEntity;
 import org.example.userregistr.dao.repository.UserRepository;
 import org.example.userregistr.exception.IllegalArgumentException;
 import org.example.userregistr.exception.NotFoundException;
-import org.example.userregistr.model.dtos.UserCreateDto;
+import org.example.userregistr.model.dtos.request.UserCreateDto;
 import org.example.userregistr.model.dtos.UserDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,4 +1,4 @@
-package org.example.userregistr.model.dtos;
+package org.example.userregistr.model.dtos.request;
 
 import jakarta.validation.constraints.NotNull;
 

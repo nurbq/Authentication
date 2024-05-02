@@ -10,7 +10,7 @@ import org.example.userregistr.exception.IllegalArgumentException;
 import org.example.userregistr.exception.NotFoundException;
 import org.example.userregistr.kafka.KafkaSender;
 import org.example.userregistr.kafka.UserEvent;
-import org.example.userregistr.model.dtos.UserCreateDto;
+import org.example.userregistr.model.dtos.request.UserCreateDto;
 import org.example.userregistr.model.dtos.UserDto;
 import org.example.userregistr.model.enums.UserRoles;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -50,6 +50,11 @@ public class UserService {
 
         kafkaSender.sendUserEvent(new UserEvent(userCreateDto.email(), userCreateDto.password()), userCreateDto.email());
         return userId;
+    }
+
+    public UserDto getUserById(Long userId) {
+        UserEntity userFromDb = userRepository.getUserById(userId);
+        return new UserDto(userFromDb.getId(), userFromDb.getEmail(), userFromDb.getCreatedTime());
     }
 
     public UserDto getUserByEmail(String email) {

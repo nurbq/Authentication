@@ -6,7 +6,7 @@ import org.example.userregistr.config.IntegrationTestContext;
 import org.example.userregistr.dao.entity.UserEntity;
 import org.example.userregistr.dao.repository.RoleRepository;
 import org.example.userregistr.dao.repository.UserRepository;
-import org.example.userregistr.model.dtos.UserCreateDto;
+import org.example.userregistr.model.dtos.request.UserCreateDto;
 import org.example.userregistr.model.dtos.UserDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

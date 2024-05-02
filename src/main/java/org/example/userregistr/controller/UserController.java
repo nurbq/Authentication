@@ -4,7 +4,7 @@ package org.example.userregistr.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.userregistr.model.dtos.UserCreateDto;
+import org.example.userregistr.model.dtos.request.UserCreateDto;
 import org.example.userregistr.model.dtos.UserDto;
 import org.example.userregistr.service.UserService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,7 +35,7 @@ public class UserController {
     @GetMapping
     @PreAuthorize("hasAuthority('ADMIN')")
     public List<UserDto> getAllUsers(Authentication authentication) {
-//        log.info("User: {}{}", authentication.getName(), authentication.getAuthorities());
+        log.info("User: {}{}", authentication.getName(), authentication.getAuthorities());
         return userService.getAllUsers();
     }
 
@@ -54,7 +54,7 @@ public class UserController {
         return "deleted";
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/manager")
     public String managerPage() {
         return "Hi manager";

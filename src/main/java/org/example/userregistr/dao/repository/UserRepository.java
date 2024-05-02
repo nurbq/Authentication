@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.userregistr.dao.entity.UserEntity;
 import org.example.userregistr.dao.rowmapper.UserEntityRowMapper;
 import org.example.userregistr.exception.IllegalArgumentException;
+import org.example.userregistr.model.dtos.UserDto;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -46,6 +47,15 @@ public class UserRepository {
         } catch (EmptyResultDataAccessException e) {
             throw new IllegalArgumentException("not found email: " + email);
         }
+    }
+
+    public UserEntity getUserById(Long userId) {
+        String query = "select id, email, password, created_time from users where id = ?";
+        return jdbcTemplate.queryForObject(
+                query,
+                new UserEntityRowMapper(),
+                userId
+        );
     }
 
     public List<UserEntity> getAllUsers() {
