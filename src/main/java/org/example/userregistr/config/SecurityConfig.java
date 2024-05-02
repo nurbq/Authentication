@@ -1,13 +1,9 @@
 package org.example.userregistr.config;
 
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -15,14 +11,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.session.DisableEncodeUrlFilter;
-
-import java.io.IOException;
 
 @EnableWebSecurity(debug = true)
 @Configuration
@@ -40,15 +30,19 @@ public class SecurityConfig {
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         request -> request
-                                .requestMatchers("/auth/**").permitAll()
+                                .requestMatchers("/auth/register").permitAll()
                                 .requestMatchers("/users/all", "/users/admin").hasAuthority("ADMIN")
-                                .anyRequest().permitAll())
-                .httpBasic(Customizer.withDefaults())
-                .exceptionHandling((exceptionHandling) -> {
-                    exceptionHandling.authenticationEntryPoint((request, response, authException) -> {
-                        response.sendRedirect("/login");
-                    });
-                })
+                                .requestMatchers("/users/manager").hasAuthority("ROLE_ADMIN")
+                                .anyRequest().authenticated())
+//                .addFilterBefore(new RequestJwtFilter(), AuthorizationFilter.class)
+//                .httpBasic(Customizer.withDefaults())
+//                .exceptionHandling((exceptionHandling) -> {
+//                    exceptionHandling.authenticationEntryPoint((request, response, authException) -> {
+//                        response.sendRedirect("/login");
+//                    });
+//                })
+                .oauth2Login(Customizer.withDefaults())
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
@@ -61,6 +55,15 @@ public class SecurityConfig {
 
         return provider;
     }
+
+//    @Bean
+//    public OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
+//        OidcUserService oidcUserService = new OidcUserService();
+//        return userRequest ->{
+//            OidcUser oidcUser = oidcUserService.loadUser(userRequest);
+//            Optional.ofNullable(oidcUser.)
+//        }
+//    }
 
     @Bean("passwordEncoder")
     public BCryptPasswordEncoder passwordEncoder() {

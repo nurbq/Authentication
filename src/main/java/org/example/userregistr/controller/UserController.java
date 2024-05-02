@@ -53,4 +53,10 @@ public class UserController {
     public String deleteUserByEmail(@PathVariable String email) {
         return "deleted";
     }
+
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @GetMapping("/manager")
+    public String managerPage() {
+        return "Hi manager";
+    }
 }
