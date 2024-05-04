@@ -1,5 +1,6 @@
 package org.example.userregistr.config.security;
 
+import lombok.RequiredArgsConstructor;
 import org.example.userregistr.dao.entity.UserEntity;
 import org.example.userregistr.dao.repository.UserRepository;
 import org.example.userregistr.exception.IllegalArgumentException;
@@ -11,17 +12,17 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
-
+    private final UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -33,7 +34,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
 
         return User.withUsername(user.getEmail())
-                .password("{noop}" + user.getPassword())
+                .password(user.getPassword())
                 .authorities(getAuthorities(userRepository.getUserRolesByEmail(email)))
                 .build();
     }

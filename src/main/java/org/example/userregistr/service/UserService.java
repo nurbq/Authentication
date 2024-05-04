@@ -10,6 +10,8 @@ import org.example.userregistr.exception.IllegalArgumentException;
 import org.example.userregistr.exception.NotFoundException;
 import org.example.userregistr.model.dtos.UserCreateDto;
 import org.example.userregistr.model.dtos.UserDto;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,6 +24,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public Long userRegister(UserCreateDto userCreateDto) {
 
@@ -32,7 +35,7 @@ public class UserService {
         Long userId = userRepository.insert(new UserEntity(
                 null,
                 userCreateDto.email(),
-                userCreateDto.password(),
+                passwordEncoder.encode(userCreateDto.password()),
                 LocalDateTime.now()
         ));
 
