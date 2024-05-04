@@ -31,7 +31,7 @@ public class SecurityConfig {
 
     @Bean
     public TokenCookieAuthenticationConfigurer tokenCookieAuthenticationConfigurer() {
-        return new TokenCookieAuthenticationConfigurer();
+        return new TokenCookieAuthenticationConfigurer(null, null);
     }
 
     @Bean
