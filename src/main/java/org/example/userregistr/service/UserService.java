@@ -1,5 +1,8 @@
 package org.example.userregistr.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.example.userregistr.dao.entity.Role;
 import org.example.userregistr.dao.entity.UserEntity;
@@ -10,13 +13,10 @@ import org.example.userregistr.exception.IllegalArgumentException;
 import org.example.userregistr.exception.NotFoundException;
 import org.example.userregistr.model.dtos.UserCreateDto;
 import org.example.userregistr.model.dtos.UserDto;
+import org.example.userregistr.model.enums.UserRoles;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,12 +26,12 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
+    @Transactional
     public Long userRegister(UserCreateDto userCreateDto) {
 
         if (userRepository.checkForExistenceUserByEmail(userCreateDto.email())) {
             throw new ConflictException("user already exists");
         }
-
         Long userId = userRepository.insert(new UserEntity(
                 null,
                 userCreateDto.email(),
@@ -39,7 +39,7 @@ public class UserService {
                 LocalDateTime.now()
         ));
 
-        roleRepository.insert(new Role(null, "ROLE_user", userId));
+        roleRepository.insert(new Role(null, UserRoles.USER.name(), userId));
 
         return userId;
     }
