@@ -32,4 +32,9 @@ public class UserController {
     public String deleteUserByEmail(@PathVariable String email) {
         return userService.deleteUserByEmail(email);
     }
+
+    @GetMapping("/manager")
+    public String getManager() {
+        return "Hi manager";
+    }
 }

@@ -2,7 +2,6 @@ spring:
   liquibase:
     enabled: false
     change-log: classpath:liquibase/master-main.xml
-
 jwt:
   access-token-key: '{"kty":"oct","k":"hi7S5RX5ZRZooHA0RKGctZ-KtR9FoESgCnH-3BNg5XI"}'
   refresh-token-key: '{"kty":"oct","k":"956PBFst1FguLr5irJD-aQ"}'
@@ -10,9 +9,11 @@ server:
   http2:
     enabled: true
   ssl:
-    key-alias: jwtlocalhost
     key-store: /Users/nurba/Main/Software/keystore/ssl/jwtKeyStoreAuthProject
-    key-password: password
+    key-store-password: password
+    key-alias: jwtlocalhost
+    key-store-type: PKCS12
+  port: 8090
 logging:
   level:
     org.springframework.security: trace

@@ -10,7 +10,6 @@ import org.example.userregistr.model.jwt.Token;
 @Setter
 @Slf4j
 public class DefaultAccessTokenFactory implements Function<Token, Token> {
-
     private Duration tokenTtl = Duration.ofMinutes(5);
 
     @Override
