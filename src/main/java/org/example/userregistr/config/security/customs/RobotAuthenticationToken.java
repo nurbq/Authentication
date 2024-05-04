@@ -1,4 +1,4 @@
-package org.example.userregistr.config.security;
+package org.example.userregistr.config.security.customs;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;

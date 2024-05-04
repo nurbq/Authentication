@@ -1,4 +1,4 @@
-package org.example.userregistr.config.security;
+package org.example.userregistr.config.security.customs;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

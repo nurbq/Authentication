@@ -1,7 +1,15 @@
 package org.example.userregistr.config.security;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.nimbusds.jose.KeyLengthException;
+import com.nimbusds.jose.crypto.DirectEncrypter;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.jwk.OctetSequenceKey;
+import java.text.ParseException;
+import lombok.RequiredArgsConstructor;
+import org.example.userregistr.config.security.jwt.serializers.AccessTokenJwsStringSerializer;
+import org.example.userregistr.config.security.jwt.serializers.RefreshTokenJweStringSerializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -12,32 +20,41 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.intercept.AuthorizationFilter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-
-    @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
+    @Bean
+    public JwtAuthenticationConfigurer jwtAuthenticationConfigurer(
+            @Value("${jwt.access-token-key}") String accessTokenKey,
+            @Value("${jwt.refresh-token-key}") String refreshTokenKey
+    ) throws ParseException, KeyLengthException {
+        return new JwtAuthenticationConfigurer.JwtAuthenticationConfigurerBuilder()
+                .accessTokenStringSerializer(new AccessTokenJwsStringSerializer(
+                        new MACSigner(OctetSequenceKey.parse(accessTokenKey))
+                ))
+                .refreshTokenStringSerializer(new RefreshTokenJweStringSerializer(
+                        new DirectEncrypter(OctetSequenceKey.parse(refreshTokenKey))
+                ))
+                .build();
+    }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   JwtAuthenticationConfigurer jwtAuthenticationConfigurer) throws Exception {
+        http.with(jwtAuthenticationConfigurer, Customizer.withDefaults());
         return http
-                .authorizeHttpRequests(authorize ->
-                        authorize.requestMatchers("/", "/register").permitAll()
-                                .requestMatchers("/robot").hasAuthority("ROLE_robot")
-                                .anyRequest().authenticated()
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers("/", "/register").permitAll()
+                        .requestMatchers("/robot").hasAuthority("ROLE_robot")
+                        .anyRequest().authenticated()
                 )
-                .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults())
-                .addFilterBefore(new RobotAuthenticationFilter(), AuthorizationFilter.class)
-                .addFilterBefore(new CustomSecurityFilter(), AuthorizationFilter.class)
-                .authenticationProvider(new DanielAuthenticationProvider())
                 .userDetailsService(customUserDetailsService)
-//                .authenticationProvider(new CustomAuthenticationProvider())
                 .build();
     }
 
