@@ -1,21 +1,27 @@
 package org.example.userregistr.config;
 
 
+import com.nimbusds.jose.KeyLengthException;
+import com.nimbusds.jose.crypto.DirectEncrypter;
+import com.nimbusds.jose.jwk.OctetSequenceKey;
+import java.text.ParseException;
 import lombok.RequiredArgsConstructor;
+import org.example.userregistr.config.csrf.GetCsrfTokenFilter;
+import org.example.userregistr.config.csrf.TokenCookieAuthenticationConfigurer;
+import org.example.userregistr.config.csrf.TokenCookieJweStringSerializer;
+import org.example.userregistr.config.csrf.TokenCookieSessionAuthenticationStrategy;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
 @EnableWebSecurity(debug = true)
 @Configuration
@@ -23,61 +29,47 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CustomUserDetailsService customUserDetailsService;
-    private final JwtAuthFilter jwtAuthFilter;
+    @Bean
+    public TokenCookieAuthenticationConfigurer tokenCookieAuthenticationConfigurer() {
+        return new TokenCookieAuthenticationConfigurer();
+    }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public TokenCookieJweStringSerializer tokenCookieJweStringSerializer(
+            @Value("${jwt.cookie-token-key}") String cookieTokenKey
+    ) throws ParseException, KeyLengthException {
+        return new TokenCookieJweStringSerializer(
+                new DirectEncrypter(OctetSequenceKey.parse(cookieTokenKey)
+        ));
+    }
 
-        return http
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(
-                        request -> request
-                                .requestMatchers("/auth/register", "/auth/v1/login", "/auth/refreshToken").permitAll()
-                                .requestMatchers("/users/all", "/users/admin").hasAuthority("ADMIN")
-                                .requestMatchers("/users/manager").hasAuthority("ROLE_ADMIN")
+
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http, TokenCookieJweStringSerializer tokenCookieJweStringSerializer) throws Exception {
+        var tokenCookieSessionAuthenticationStrategy = new TokenCookieSessionAuthenticationStrategy();
+        tokenCookieSessionAuthenticationStrategy.setTokenStringSerializer(tokenCookieJweStringSerializer);
+
+        http
+                .httpBasic(Customizer.withDefaults())
+                .addFilterAfter(new GetCsrfTokenFilter(), ExceptionTranslationFilter.class)
+                .authorizeHttpRequests(request ->
+                        request
+                                .requestMatchers("/manager").hasRole("MANAGER")
+                                .requestMatchers("/error", "index.html").permitAll()
                                 .anyRequest().authenticated())
-//                .addFilterBefore(new RequestJwtFilter(), AuthorizationFilter.class)
-//                .httpBasic(Customizer.withDefaults())
-//                .exceptionHandling((exceptionHandling) -> {
-//                    exceptionHandling.authenticationEntryPoint((request, response, authException) -> {
-//                        response.sendRedirect("/login");
-//                    });
-//                })
-//                .oauth2Login(Customizer.withDefaults())
-//                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .build();
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        .sessionAuthenticationStrategy(tokenCookieSessionAuthenticationStrategy))
+                .csrf(csrf -> csrf.csrfTokenRepository(new CookieCsrfTokenRepository())
+                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                        .sessionAuthenticationStrategy(((authentication, request, response) -> {
+                        })));
+        http.with(tokenCookieAuthenticationConfigurer(), Customizer.withDefaults());
+        return http.build();
     }
 
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(customUserDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
-
-        return provider;
-    }
-
-//    @Bean
-//    public OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
-//        OidcUserService oidcUserService = new OidcUserService();
-//        return userRequest ->{
-//            OidcUser oidcUser = oidcUserService.loadUser(userRequest);
-//            Optional.ofNullable(oidcUser.)
-//        }
-//    }
-
-    @Bean("passwordEncoder")
-    public BCryptPasswordEncoder passwordEncoder() {
+    @Bean(name = "passwordEncoder")
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
     }
 }
