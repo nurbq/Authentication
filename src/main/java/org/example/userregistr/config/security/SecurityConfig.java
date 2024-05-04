@@ -58,12 +58,6 @@ public class SecurityConfig {
                 .build();
     }
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return new InMemoryUserDetailsManager(
-                User.builder().username("user").password("{noop}password").build());
-    }
-
     @Bean(name = "passwordEncoder")
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
